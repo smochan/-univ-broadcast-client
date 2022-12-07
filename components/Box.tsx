@@ -15,16 +15,22 @@ interface IBox {
    like: string;
    likeCount: number;
    dislikeCount: number;
+   replies: number;
+   setReplies: any;
 }
 
 const Box = (props: IBox) => {
 
-   const { msgId, msg, author, time, like, likeCount, dislikeCount } = props;
+   const { msgId, msg, author, time, like, likeCount, dislikeCount, replies, setReplies } = props;
 
    const [likeState, setLikeState] = useState(like);
    const [boxClass, setBoxClass] = useState(`${styles.box}`);
    const [LikeCount, setLikeCount] = useState(likeCount);
    const [DislikeCount, setDislikeCount] = useState(dislikeCount);
+
+   const handleReply = () => {
+      setReplies({state: true, id: msgId});
+   }
 
    const likeHandler = async (target: string) => {
       const token = Cookies.get("token");
@@ -57,17 +63,11 @@ const Box = (props: IBox) => {
          Authorization: `Bearer ${token}` }
       });
       console.log(res);
-
    }
-
-      // const res = await axios.get(`${process.env.API_URL}/messages`, { headers: {
-         
-      // }});
-   // }
 
    const expand = () => {
       if(boxClass === `${styles.box}`) setBoxClass(`${styles.box} ${styles.expand}`);
-      else setBoxClass(`${styles.box}`);
+      else setBoxClass(`${boxClass} ${styles.expandReply}`);
       console.log("expanded");
    }
 
@@ -110,10 +110,6 @@ const Box = (props: IBox) => {
       }
    }
 
-   const a = "dkfuhgsdkfhdesd dsjkfh sdjkfhds vsdh fasdhkfv asgvh sgkvhsd gkhsdf sdfkhg sdfdhg sdfghv shvsd vhsd sdgh sdfdgvhsd vsh sdhv sdvhs svhsdihv sddh sdghdso sdkfg hsdvh"; 
-   const b = "Mochan";
-   const c = "12:00 PM 12/12/2021";
-
    return (
       <div className={boxClass}>
          <div className={styles.kebab}>
@@ -121,44 +117,21 @@ const Box = (props: IBox) => {
          </div>
          <p className={styles.author} onClick={expand}><strong>{author}</strong></p>
          <p className={styles.msg} onClick={expand}>{msg}</p>
-         <p className={styles.time} onClick={expand}><strong>{time}</strong></p>
-            {
-               likeState === 'like' ? 
-               <div onClick={ (e) =>react(e)}>
-                  <div className={styles.like}>
-                     <Image src={Like} alt="like" width={30} height={30} id="Like"></Image>
-                     <p id="like">{LikeCount}</p>
-                  </div>
-                  <div className={styles.dislike}>
-                     <Image src={Dislike} alt="dislike" width={30} height={30} className={styles.iconDislike} ></Image>
-                     <p>{DislikeCount}</p>
-                  </div>
-               </div>
+         <div>
+            {replies ? <p className={styles.replyCount} onClick={handleReply}>{replies} replies</p> : "" }
+            <p className={styles.time} onClick={expand}><strong>{time.substring(15, 21)}, {time.substring(4, 10)}</strong></p>
+         </div>
 
-            : likeState === 'dislike' ? 
-               <div onClick={ (e) =>react(e)}>
-                  <div className={styles.like}>
-                     <Image src={Dislike} alt="like" width={30} height={30} id="Like"></Image>
-                     <p id="like">{LikeCount}</p>
-                  </div>
-                  <div className={styles.dislike}>
-                     <Image src={Like} alt="dislike" width={30} height={30} className={styles.iconDislike}></Image>
-                     <p>{DislikeCount}</p>
-                  </div>
-               </div>
-               : 
-               <div onClick={react}>
-                  <div className={styles.like}>
-                     <Image src={Dislike} alt="like" width={30} height={30} id="Like"></Image>
-                     <p id="like">{LikeCount}</p>
-                  </div>
-                  <div className={styles.dislike}>
-                     <Image src={Dislike} alt="dislike" width={30} height={30} className={styles.iconDislike}></Image>
-                     <p >{DislikeCount}</p>
-                  </div>
-               </div>
-            }
-            
+         <div onClick={ (e) =>react(e)}>
+            <div className={styles.like}>
+               <Image src={likeState === 'like' ? Like: Dislike} alt="like" width={30} height={30} id="Like"></Image>
+               <p id="like">{LikeCount}</p>
+            </div>
+            <div className={styles.dislike}>
+               <Image src={likeState === 'dislike' ? Like : Dislike } alt="dislike" width={30} height={30} className={styles.iconDislike} ></Image>
+               <p>{DislikeCount}</p>
+            </div>
+         </div>
       </div>
    )
 }

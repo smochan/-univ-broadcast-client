@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import type { NextPage } from "next";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useMemo} from "react";
 import Head from "next/head";
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -8,7 +8,7 @@ import { io } from "socket.io-client";
 import styles from '../styles/Message.module.scss'
 import Box from "../components/Box";
 
-const socket = io("http://localhost:8000");
+const socket = io("http://localhost:8080");
 
 interface IBox {
    _id: string;
@@ -21,6 +21,8 @@ interface IBox {
       userId: string;
       reaction: string;
    }]
+   replies: number;
+   setReplies: any;
 }
 interface IUser{
    _id: string;
@@ -36,8 +38,10 @@ const Message: NextPage = () => {
    //     console.log("Broadcasting");
    // }
    const [user, setUser] = useState<IUser>();
-   const [mesg, setMsg] = useState<IBox[]>([]);
+   const [msg, setMsg] = useState<IBox[]>([]);
    const [broadcastMsg, setBroadcastMsg] = useState("");
+   const [replies, setReplies] = useState({state: false, id: ""});
+   const [modalClass, setModalClass] = useState(styles.modal + " " + styles.hide);
 
    const emitMessage = () => {
       socket.emit("chat message", broadcastMsg, user?._id, user?.name);
@@ -63,23 +67,37 @@ const Message: NextPage = () => {
       setUser(res.data.data.user);
    }
    
-   // useEffect( () => {
-   //    fetchMsg();
-      
-   // },[]);
+   const fetchReply = async () => {      
+      const token = Cookies.get("token");
+      if (!token) {
+         window.location.href = "auth/login";
+      }
+      const res = await axios.get(`${process.env.API_URL}/reply/${replies.id}`, { headers: {
+         Authorization: `Bearer ${token}`
+         } });
+
+      console.log(res.data.data.reply);
+   }
+
+   useEffect( ()  => {
+      // console.log("Replies: ", replies);
+      if( replies.state) {
+         setModalClass(styles.modal);
+      }
+      fetchReply();
+   },[replies]);
 
    useEffect(() => {
       fetchMsg();
-      socket.on("chat message", function(msg){
-         // console.log("Message: ", msg);
-         // setMsg(mesg => [...mesg, msg]);
+      socket.on("chat message", function(mess){
+         // console.log("Message: ", mess?.newBroadcast);
+         setMsg(msg => [mess?.newBroadcast, ...msg]);
 
-         // console.log(mesg)
-         fetchMsg();
+         console.log(msg);
+         // fetchMsg();
       });
       return () => {
          socket.off("chat message");
-         console.log(mesg);
       }
    }, []);
    
@@ -97,24 +115,29 @@ const Message: NextPage = () => {
             </div>
             <div className={styles.message}>
                {
-                  mesg?
-                  mesg.map((msg, index) => {
+                  msg?
+                  msg.map((mess, index) => {
                      let like = 0;
                      let dislike = 0;
                      let msgLike = "";
-                     for(let i=0; i<msg.reactions?.length; i++){
-                        if(msg.reactions[i].userId === user?._id) msgLike = msg.reactions[i].reaction;
-                        if(msg.reactions[i].reaction === "like"){
+                     for(let i=0; i<mess.reactions?.length; i++){
+                        if(mess.reactions[i].userId === user?._id) msgLike = mess.reactions[i].reaction;
+                        if(mess.reactions[i].reaction === "like"){
                            like++;
                         }
                         else{
                            dislike++;
                         }
                      }
-                     return <Box msgId={msg._id} msg={msg.message} author={msg.sender.name} time={msg.createdAt} key={msg._id} like={msgLike} likeCount={like} dislikeCount={dislike}/>
+
+                     const createdAt = new Date(mess.createdAt);
+                     return <Box msgId={mess._id} msg={mess.message} author={mess.sender.name} time={createdAt.toString('YYYY-MM-dd')} key={mess._id} like={msgLike} likeCount={like} dislikeCount={dislike} replies={mess.replies} setReplies={setReplies}/>
                   })
                   : <p>Loading.......</p>
                }
+            </div>
+            <div className={modalClass}>
+               {/* <Box msgId={mess._id} msg={mess.message} author={mess.sender.name} time={createdAt.toString('YYYY-MM-dd')} key={mess._id} like={msgLike} likeCount={like} dislikeCount={dislike} replies={mess.replies} setReplies={setReplies}/> */}
             </div>
             <div className={styles.newMsg}>
                <div className="form-floating mb-1">
@@ -123,24 +146,11 @@ const Message: NextPage = () => {
                </div>
                <button type="button" className={`${styles.bgPri} btn`} onClick={emitMessage} >Broadcast</button>
             </div>
+
+            
          </main>
       </div>
    );
 };
-
-// export const getStaticProps = async () => {
-
-//    const token = Cookies.get("token");
-//    console.log(token, process.env.API_URL);
-//    const res = await axios.get(`http://localhost:8080/messages`, { headers: {
-//       Authorization: `Bearer ${token}`
-//    } });
-//    const data = res.data;
-//    return {
-//       props: {
-//          BroadcastData: data
-//       }
-//    }
-// }
 
 export default Message;

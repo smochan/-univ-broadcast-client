@@ -38,7 +38,7 @@ const Login: NextPage = () => {
     }
     catch(err:any) {
 
-      if(err.response.data.error) {
+      if(err.response.data?.error) {
         setError(err.response.data.message);
       }
     }
