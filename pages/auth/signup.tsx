@@ -2,8 +2,8 @@
 import type { NextPage } from "next";
 import React, { useState, useEffect} from "react";
 import Head from "next/head";
-import styles from '../../styles/Auth.module.css'
-
+import styles from '../../styles/Auth.module.css';
+import Cookies from 'js-cookie';
 import axios from 'axios'
 
 const Signup: NextPage = () => {
@@ -44,7 +44,26 @@ const Signup: NextPage = () => {
         setError(err.response.data.message);
       }
     }
+  }    
+  const verify = async () => {
+    const token = Cookies.get("token");
+    const res = await axios.get(`${process.env.API_URL}/auth/verifyToken`, { headers: { Authorization: `Bearer ${token}` } });
+    // console.log(res.data.success);
+    if(res.data.success) {
+      window.location.href = "/message";
+    }
   }
+
+  const handleKeyPress = (e:any) => {
+    if(e.key === "Enter" ) {
+      signup();
+    }
+  }
+
+ useEffect(() => {      
+    verify();
+  }, []);
+
   return (
     <div>
       <Head>
@@ -52,7 +71,7 @@ const Signup: NextPage = () => {
       </Head>
       <div className={styles.container}>
       </div>
-      <main className={styles.main}>
+      <main className={styles.main} onKeyPress={handleKeyPress}>
         {/* <div className={styles.header}>
             <img src="https://www.iiitm.ac.in/templates/shaper_educon/images/presets/preset1/logo.png" alt="logo" />
             <img src="https://www.iiitm.ac.in/images/logo-hindi.png" alt="logo-hindi" />

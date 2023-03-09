@@ -28,8 +28,22 @@ const Box = (props: IBox) => {
    const [LikeCount, setLikeCount] = useState(likeCount);
    const [DislikeCount, setDislikeCount] = useState(dislikeCount);
 
-   const handleReply = () => {
-      setReplies({state: true, id: msgId});
+   const fetchReply = async () => {      
+      const token = Cookies.get("token");
+      if (!token) {
+         window.location.href = "auth/login";
+      }
+      const res = await axios.get(`${process.env.API_URL}/reply/${msgId}`, { headers: {
+         Authorization: `Bearer ${token}`
+         } });
+
+      console.log(res.data.data.reply);
+      return res.data.data.reply;
+      // reply = res.data.data.reply;
+   }
+   const handleReply =async () => {
+      const reply = await fetchReply();
+      setReplies({state: true, id: msgId, message: msg, sender: author, createdAt: time, reply: reply});
    }
 
    const likeHandler = async (target: string) => {

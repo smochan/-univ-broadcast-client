@@ -14,6 +14,15 @@
    height: 100vh;
    overflow-x: hidden;
 }
+.logout{
+   cursor: pointer;
+   letter-spacing: .3ch;
+}
+.logout:hover{
+   color: #4d4d4d;
+   font-size: 1.05rem;
+   letter-spacing: .4ch;
+}
 .container{
    position: absolute;
    min-height: 100vh;
@@ -42,6 +51,7 @@
    height: 82%;
    overflow-y: scroll;
    gap: 2rem;
+   // display: none;
    // opacity: 0.1;
 }
 .newMsg{
@@ -69,4 +79,75 @@
    width: 100%;
    // z-index: 10;
    margin-top: 5rem;
+}
+.modalBody{
+   height: 100%;
+   // padding: 1em;
+}
+.cross{
+   position: absolute;
+   top: 0;
+   right: .5rem;
+   cursor: pointer;
+}
+.modalBody{
+   background-color: #d9e9e9;
+   
+}
+.modalHead{
+   background-color: #C3D1D2;
+   padding: 1rem;
+   padding-bottom: 5px;
+   position: sticky;
+   top: 0;
+   z-index: 2;
+   // margin-bottom: 1rem;
+}
+.modalReply{
+   background-color: #d9e9e9;
+   padding: 1rem;
+   padding-bottom: 5px;
+   position: relative;
+   margin-bottom: 3rem;
+}
+.modalReplyTime{
+   position: absolute;
+   right: 2rem;
+   font-size: 0.8rem;
+   color: #000;
+   font-weight: 600;
+   letter-spacing: .15rem;
+}
+// .modalReplyName{
+//    position: absolute;
+//    top: 1rem;
+//    right: 2rem;
+//    font-size: 0.8rem;
+//    color: #000;
+//    letter-spacing: .15rem;
+// }
+.modalReplyBox{
+   position: relative;
+   // gap: 2rem;
+   padding-bottom: 1rem;
+   margin-bottom: 2rem;
+   // min-height: 4rem;
+   border-bottom: solid 2px #a4b3b3;
+}
+.modalReplySender{
+   position: absolute;
+   top: 1rem;
+   right: 2rem;
+   font-size: 0.8rem;
+   color: #000;
+   letter-spacing: .15rem;
+}
+.modalNewReply{
+   position: fixed;
+   width: 40%;
+   bottom: 1.1rem;
+}
+.modalMsg{
+   width: 73%;
+   text-align: justify;
 }

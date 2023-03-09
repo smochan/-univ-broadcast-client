@@ -43,6 +43,23 @@ const Login: NextPage = () => {
       }
     }
    }
+    const verify = async () => {
+      const token = Cookies.get("token");
+      const res = await axios.get(`${process.env.API_URL}/auth/verifyToken`, { headers: { Authorization: `Bearer ${token}` } });
+      // console.log(res.data.success);
+      if(res.data.success) {
+        window.location.href = "/message";
+      }
+    }
+    const handleKeyPress = (e:any) => {
+      if(e.key === "Enter" ) {
+        login();
+      }
+    }
+
+   useEffect(() => {      
+      verify();
+    }, []);
 
   return (
     <div>
@@ -51,7 +68,7 @@ const Login: NextPage = () => {
       </Head>
       <div className={styles.container}>
       </div>
-      <main className={styles.main}>
+      <main className={styles.main} onKeyPress={handleKeyPress}>
         {/* <div className={styles.header}>
             <img src="https://www.iiitm.ac.in/templates/shaper_educon/images/presets/preset1/logo.png" alt="logo" />
             <img src="https://www.iiitm.ac.in/images/logo-hindi.png" alt="logo-hindi" />
